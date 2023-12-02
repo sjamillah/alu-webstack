@@ -1,18 +1,10 @@
-frontend www-http
-    bind *:80
-    mode http
-    default_backend web-backend
-frontend www-https
-    bind *:443 ssl crt /etc/haproxy/dauda.tech.pem
-    http-request set-header X-Forwarded-Proto https
-    acl letsencrypt-acl path_beg /.well-known/acme-challenge/
-    use_backend letsencrypt-backend if letsencrypt-acl
-    default_backend web-backend
+frontend web_frontend
+        bind 0.0.0.0:80
+        mode http
+        default_backend web_frontend
+backend web_frontend
+        mode http
+        balance roundrobin
+        server 5819-web-01 18.232.176.85:8080
+        server 5819-web-02 18.234.51.9:8080
 
-backend web-backend
-    redirect scheme https unless { ssl_fc }
-    balance roundrobin
-    server 5452-web-01 18.232.176.85:80 check
-    server 5452-web-02 18.234.51.9:80 check
-backend letsencrypt-backend
-   server letsencrypt 127.0.0.1:54321
